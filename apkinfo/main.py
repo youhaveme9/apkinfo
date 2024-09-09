@@ -29,6 +29,7 @@ def extract_info(xml):
             utils.printText(f'Version Name: {xml.attrib[i]}')
         if f"{android}compileSdkVersion" == i:
             utils.printText(f'Compiler SDK Version: {xml.attrib[i]}')
+        clean_up()
     print()
 
     # Permissions
@@ -44,6 +45,9 @@ def decompile_apk(apk_path):
     xml = utils.checkFile(f'./temp_decompile/apk_decompiled/Resources/AndroidManifest.xml')
     utils.logInfo('APK decompiled successfully')
     return xml
+
+def clean_up():
+    os.system('rm -rf temp_decompile')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A simple tool to extract data from Android Mainfest files')

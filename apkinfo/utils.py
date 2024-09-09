@@ -39,7 +39,6 @@ class Utils:
     def convert_to_xml(self, xml):
         try:
             xml = ET.parse(xml)
-            print(f'xml: {xml}')
             return xml.getroot()
         except Exception as e:
             self.logError(f'Error parsing the XML file: {e}')
