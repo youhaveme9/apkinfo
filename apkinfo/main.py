@@ -3,7 +3,7 @@ import sys
 import argparse
 
 import xml.etree.ElementTree as ET
-from androidinfo.utils import Utils
+from apkinfo.utils import Utils
 from rich.console import Console
 
 console = Console()
@@ -82,4 +82,4 @@ def main():
     elif choice.xml:
         parse_manifest(choice.xml)
     else:
-        utils.logError('Usage: python3 androidinfo.py -apk <path_to_apk> -xml <path_to_AndroidManifest.xml> -output <output_file>')
+        utils.logError('Usage: python3 apkinfo.py -apk <path_to_apk> -xml <path_to_AndroidManifest.xml> -output <output_file>')
