@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import argparse
 
 import xml.etree.ElementTree as ET
@@ -8,6 +9,9 @@ from rich.console import Console
 
 console = Console()
 utils = Utils()
+
+packageName = ''
+permissions = json.loads(open('/Users/roshankumar/Programming/apkstrings/config/permissions.json').read())
 
 def check_dependencies():
     if os.system('which jadx') != 0:
@@ -25,6 +29,7 @@ def extract_info(xml):
     for i in xml.attrib:
         if i == 'package':
             utils.printText(f'Package Name: {xml.attrib[i]}')
+            packageName = xml.attrib[i]
         if "versionName" in i:
             utils.printText(f'Version Name: {xml.attrib[i]}')
         if f"{android}compileSdkVersion" == i:
@@ -34,9 +39,12 @@ def extract_info(xml):
 
     # Permissions
     utils.printTitle('Permissions')
+    # -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}
     for child in xml:
-        if child.tag == 'uses-permission':
-            utils.printText(child.attrib[f'{android}name'])
+        if child.tag == 'uses-permission' and child.attrib[f'{android}name'][len(packageName)+1:] in permissions:
+            utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]} -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}")
+        elif child.tag == 'uses-permission':
+            utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]}")
     
 def decompile_apk(apk_path):
     with console.status("Decompiling APK ", spinner="dots2"):
