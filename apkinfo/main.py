@@ -11,7 +11,7 @@ console = Console()
 utils = Utils()
 
 packageName = ''
-permissions = json.loads(open('/Users/roshankumar/Programming/apkstrings/config/permissions.json').read())
+permissions = json.loads(open(os.path.join("config", "permissions.json")).read())
 
 def check_dependencies():
     if os.system('which jadx') != 0:
@@ -39,12 +39,20 @@ def extract_info(xml):
 
     # Permissions
     utils.printTitle('Permissions')
-    # -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}
     for child in xml:
         if child.tag == 'uses-permission' and child.attrib[f'{android}name'][len(packageName)+1:] in permissions:
             utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]} -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}")
         elif child.tag == 'uses-permission':
             utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]}")
+    print()
+
+    # Activities and Services
+    utils.printTitle('Activity')
+    for child in xml:
+        if child.tag == 'application':
+            for activity in child:
+                if activity.tag == 'activity':
+                    utils.printText(f'{activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
     
 def decompile_apk(apk_path):
     with console.status("Decompiling APK ", spinner="dots2"):
