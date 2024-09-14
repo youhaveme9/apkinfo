@@ -1,5 +1,5 @@
 # Android Info
-Scan apk bundles or AndroidManifest.xml to extract formatted userful information
+Scan apk bundles or AndroidManifest.xml to extract formatted useful information
 
 Get an high level overview of AndroidManifest.xml file of an android apk while reversing the apk such as `exported or non-exported activities` , `package information`, `permissions`, `services`, etc.
 
