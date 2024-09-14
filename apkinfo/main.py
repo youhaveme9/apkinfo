@@ -28,12 +28,12 @@ def extract_info(xml):
     utils.printTitle('Package Information')
     for i in xml.attrib:
         if i == 'package':
-            utils.printText(f'Package Name: {xml.attrib[i]}')
+            utils.printText(f' - Package Name: {xml.attrib[i]}')
             packageName = xml.attrib[i]
         if "versionName" in i:
-            utils.printText(f'Version Name: {xml.attrib[i]}')
+            utils.printText(f' - Version Name: {xml.attrib[i]}')
         if f"{android}compileSdkVersion" == i:
-            utils.printText(f'Compiler SDK Version: {xml.attrib[i]}')
+            utils.printText(f' - Compiler SDK Version: {xml.attrib[i]}')
         clean_up()
     print()
 
@@ -41,9 +41,9 @@ def extract_info(xml):
     utils.printTitle('Permissions')
     for child in xml:
         if child.tag == 'uses-permission' and child.attrib[f'{android}name'][len(packageName)+1:] in permissions:
-            utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]} -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}")
+            utils.printText(f" - {child.attrib[f'{android}name'][len(packageName)+1:]} -> {permissions[child.attrib[f'{android}name'][len(packageName)+1:]]}")
         elif child.tag == 'uses-permission':
-            utils.printText(f"{child.attrib[f'{android}name'][len(packageName)+1:]}")
+            utils.printText(f" - {child.attrib[f'{android}name'][len(packageName)+1:]}")
     print()
 
     # Activities and Services
@@ -52,15 +52,46 @@ def extract_info(xml):
         if child.tag == 'application':
             for activity in child:
                 if activity.tag == 'activity':
-                    utils.printText(f'{activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
+                    if f'{android}exported' in activity.attrib:
+                        utils.printText(f' - {activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
+                    else:
+                        utils.printText(f' - {activity.attrib[f'{android}name']}')
+    print()
+    
+    utils.printTitle('Providers')
+    for child in xml:
+        if child.tag == 'application':
+            for activity in child:
+                if activity.tag == 'provider':
+                    if f'{android}exported' in activity.attrib:
+                        utils.printText(f' - {activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
+                    else:
+                        utils.printText(f' - {activity.attrib[f'{android}name']}')
+    print()
+
+    utils.printTitle('Receivers')
+    for child in xml:
+        if child.tag == 'application':
+            for activity in child:
+                if activity.tag == 'receiver':
+                    if f'{android}exported' in activity.attrib:
+                        utils.printText(f' - {activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
+                    else:
+                        utils.printText(f' - {activity.attrib[f'{android}name']}')
+
     
 def decompile_apk(apk_path):
-    with console.status("Decompiling APK ", spinner="dots2"):
-        os.system('mkdir temp_decompile')
-        os.system(f'jadx {apk_path} -d ./temp_decompile/apk_decompiled')
-    xml = utils.checkFile(f'./temp_decompile/apk_decompiled/Resources/AndroidManifest.xml')
-    utils.logInfo('APK decompiled successfully')
-    return xml
+    try:
+        with console.status("Decompiling APK ", spinner="dots2"):
+            os.system('mkdir temp_decompile >> /dev/null 2>&1')
+            os.system(f'jadx {apk_path} -d ./temp_decompile/apk_decompiled')
+        xml = utils.checkFile(f'./temp_decompile/apk_decompiled/Resources/AndroidManifest.xml')
+        utils.logInfo('APK decompiled successfully')
+        return xml
+    except KeyboardInterrupt:
+        clean_up()
+        utils.logError("Interrupted by user")
+        exit(0)
 
 def clean_up():
     os.system('rm -rf temp_decompile')
