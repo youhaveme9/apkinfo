@@ -2,16 +2,21 @@ import os
 import sys
 import json
 import argparse
+from dotenv import load_dotenv
 
 import xml.etree.ElementTree as ET
 from apkinfo.utils import Utils
 from rich.console import Console
+from apkinfo.vuln import Vuln
 
 console = Console()
 utils = Utils()
+vulnerability = Vuln()
+load_dotenv()
 
 packageName = ''
 permissions = json.loads(open(os.path.join("config", "permissions.json")).read())
+
 
 def check_dependencies():
     if os.system('which jadx') != 0:
@@ -19,7 +24,7 @@ def check_dependencies():
         sys.exit(0)
     
 # Extract information from the AndroidManifest.xml file
-def extract_info(xml):
+def extract_info(xml, path):
     android = str(xml.attrib)[2:int(str(xml.attrib).index('}')+1)]
     utils.logInfo('Extracting information from the AndroidManifest.xml file')
     check_dependencies()
@@ -78,6 +83,15 @@ def extract_info(xml):
                         utils.printText(f' - {activity.attrib[f'{android}name']} : Exported = {activity.attrib[f'{android}exported']}')
                     else:
                         utils.printText(f' - {activity.attrib[f'{android}name']}')
+    print()
+    utils.printTitle('Vulnerabilities')
+    with console.status("Finding Vulnerabilities\n", spinner="dots2"):
+        vulnerabilities = vulnerability.find_vulnerabilities(path)
+        a = 0
+        for vuln in vulnerabilities:
+            utils.printText(f''' {a+1}. Vulnerability :{vuln['name']} \n    - Description : {vuln['description']}''')
+            a += 1
+
 
     
 def decompile_apk(apk_path):
@@ -89,8 +103,8 @@ def decompile_apk(apk_path):
         utils.logInfo('APK decompiled successfully')
         return xml
     except KeyboardInterrupt:
-        clean_up()
         utils.logError("Interrupted by user")
+        clean_up()
         exit(0)
 
 def clean_up():
@@ -110,12 +124,12 @@ def parse_manifest(file_path):
     else:
         if file_path.endswith('.xml'):
             amxml = utils.convert_to_xml(file_path)
-            extract_info(amxml)
+            extract_info(amxml, file_path)
 
         elif file_path.endswith('.apk'):
             xml_path = decompile_apk(file_path)
             amxml = utils.convert_to_xml(xml_path)
-            extract_info(amxml)
+            extract_info(amxml, file_path)
 
         else:
             utils.logError('Unsupported file format')

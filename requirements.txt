@@ -2,3 +2,5 @@ pyfiglet==1.0.2
 requests==2.31.0
 rich==13.7.1
 setuptools==74.1.2
+openai==1.59.9
+python-dotenv==1.0.1
