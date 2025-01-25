@@ -6,6 +6,7 @@ Get an high level overview of AndroidManifest.xml file of an android apk while r
 ## Installation
 
 - Download and install jadx from [here](https://github.com/skylot/jadx?tab=readme-ov-file#download)
+- Get your open ai api key from [here](https://platform.openai.com/)
 
 #### Fork the repo
 ```bash
